@@ -454,18 +454,13 @@ async function createCodeDeployDeployment(codedeploy, clusterName, service, task
 
 async function run() {
   try {
-    const ecs = new ECS({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
-    });
-    const codedeploy = new CodeDeploy({
-      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions'
-    });
 
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const service = core.getInput('service', { required: false });
     const cluster = core.getInput('cluster', { required: false });
     const waitForService = core.getInput('wait-for-service-stability', { required: false });
+    const maxAttempts = core.getInput('max-attempts', { required: false }) || 3;
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
 
     if (waitForMinutes > MAX_WAIT_MINUTES) {
@@ -485,6 +480,15 @@ async function run() {
     if (propagateTagsInput !== '') {
       propagateTags = propagateTagsInput;
     }
+
+    const ecs = new ECS({
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
+      maxAttempts
+    });
+    const codedeploy = new CodeDeploy({
+      customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
+      maxAttempts
+    });
 
     // Register the task definition
     core.debug('Registering the task definition');

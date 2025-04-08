@@ -88,8 +88,8 @@ inputs:
   propagate-tags:
     description: "Determines to propagate the tags from the 'SERVICE' to the task."
     required: false
-  max-retries:
-      description: 'Number of times to retry AWS API requests when encountering network or rate-limit errors.  Default is 1.'
+  max-attempts:
+      description: 'Number of times to retry AWS API requests when encountering network or rate-limit errors.  Default is 3.'
       required: false
 outputs:
   task-definition-arn:
