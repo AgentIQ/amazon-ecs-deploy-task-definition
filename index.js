@@ -483,11 +483,11 @@ async function run() {
 
     const ecs = new ECS({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
-      maxAttempts
+      maxRetries: maxAttempts
     });
     const codedeploy = new CodeDeploy({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
-      maxAttempts
+      maxRetries: maxAttempts
     });
 
     // Register the task definition
