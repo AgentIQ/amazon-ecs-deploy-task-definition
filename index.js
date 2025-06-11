@@ -481,13 +481,32 @@ async function run() {
       propagateTags = propagateTagsInput;
     }
 
+    // Max delay in ms
+    const MAX_DELAY = 20000; // 20 seconds
+
+    const customBackoff = (retryCount, err) => {
+      // Exponential backoff with full jitter:
+      const base = 3000; // Base delay in ms (adjust based on API behavior)
+      const cap = MAX_DELAY;
+
+      const exponential = Math.min(cap, base * Math.pow(2, retryCount)); // 3000, 6000, 12000, ...
+      const jitter = Math.random() * exponential; // Full jitter
+
+      // Optionally log info
+      core.info(`Retry #${retryCount + 1} due to ${err.code || err.message}, delaying ${Math.round(jitter)}ms`);
+
+      return Math.round(jitter);
+    };
+
     const ecs = new ECS({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
-      maxRetries: maxAttempts
+      maxRetries: maxAttempts,
+      retryDelayOptions: { customBackoff }
     });
     const codedeploy = new CodeDeploy({
       customUserAgent: 'amazon-ecs-deploy-task-definition-for-github-actions',
-      maxRetries: maxAttempts
+      maxRetries: maxAttempts,
+      retryDelayOptions: { customBackoff }
     });
 
     // Register the task definition
